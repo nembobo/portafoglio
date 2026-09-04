@@ -8,7 +8,9 @@ import {
   Percent,
   Calendar,
   Building,
-  Check
+  Check,
+  Database,
+  ShieldCheck
 } from 'lucide-react';
 import { useWealth } from '../../context/WealthContext';
 import { AccountSelectorDropdown } from './AccountSelectorDropdown';
@@ -16,9 +18,14 @@ import { AccountSelectorDropdown } from './AccountSelectorDropdown';
 interface HeaderProps {
   onOpenMobileSidebar: () => void;
   onOpenQuickAdd: () => void;
+  onOpenWorkspaceManager?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onOpenMobileSidebar, onOpenQuickAdd }) => {
+export const Header: React.FC<HeaderProps> = ({
+  onOpenMobileSidebar,
+  onOpenQuickAdd,
+  onOpenWorkspaceManager
+}) => {
   const {
     familyMembers,
     selectedOwnerId,
@@ -139,6 +146,18 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileSidebar, onOpenQuick
             </div>
             <span>After-Tax</span>
           </button>
+
+          {/* Spazio Dati & Backup Button */}
+          {onOpenWorkspaceManager && (
+            <button
+              onClick={onOpenWorkspaceManager}
+              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold transition-colors"
+              title="Gestisci Spazio Dati, Inizia da Zero o Esporta Backup"
+            >
+              <Database className="w-3.5 h-3.5 text-indigo-600" />
+              <span>Dati & Privacy</span>
+            </button>
+          )}
 
           {/* Quick Add Button */}
           <button

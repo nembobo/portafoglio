@@ -15,10 +15,12 @@ import { CompaniesView } from './components/companies/CompaniesView';
 import { AlternativeAssetsView } from './components/alternatives/AlternativeAssetsView';
 import { SmartRulesView } from './components/banking/SmartRulesView';
 import { QuickAddModal } from './components/modals/QuickAddModal';
+import { WorkspaceManagerModal } from './components/modals/WorkspaceManagerModal';
 
 const AppContent: React.FC = () => {
-  const { activeTab } = useWealth();
+  const { activeTab, isFirstVisit, dismissFirstVisit } = useWealth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [workspaceManagerOpen, setWorkspaceManagerOpen] = useState(false);
   const [addModalConfig, setAddModalConfig] = useState<{
     isOpen: boolean;
     mode: 'ALL' | 'FINANCIAL' | 'PROPERTY';
@@ -71,7 +73,11 @@ const AppContent: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#F8FAFC] font-sans text-slate-900 flex antialiased selection:bg-indigo-600 selection:text-white">
       {/* Sidebar Navigation */}
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <Sidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        onOpenWorkspaceManager={() => setWorkspaceManagerOpen(true)}
+      />
 
       {/* Main App Canvas */}
       <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
@@ -79,6 +85,7 @@ const AppContent: React.FC = () => {
         <Header
           onOpenMobileSidebar={() => setSidebarOpen(true)}
           onOpenQuickAdd={() => openAddModal('ALL')}
+          onOpenWorkspaceManager={() => setWorkspaceManagerOpen(true)}
         />
 
         {/* Dynamic Content View Container */}
@@ -94,6 +101,16 @@ const AppContent: React.FC = () => {
         isOpen={addModalConfig.isOpen}
         mode={addModalConfig.mode}
         onClose={closeAddModal}
+      />
+
+      {/* Data Isolation & Workspace Manager Modal */}
+      <WorkspaceManagerModal
+        isOpen={workspaceManagerOpen || isFirstVisit}
+        isInitialWelcome={isFirstVisit}
+        onClose={() => {
+          setWorkspaceManagerOpen(false);
+          if (isFirstVisit) dismissFirstVisit();
+        }}
       />
     </div>
   );

@@ -190,8 +190,30 @@ export type AlternativeCategory =
   | 'OPERA_ARTE'
   | 'GIOIELLO'
   | 'AUTO_COLLEZIONE'
+  | 'VINO_DISTILLATI'
   | 'COLLEZIONABILE'
   | 'ALTRO';
+
+export type WatchSetType =
+  | 'FULL_SET'
+  | 'SOLO_OROLOGIO'
+  | 'SCATOLA_GARANZIA'
+  | 'SOLO_SCATOLA'
+  | 'SOLO_GARANZIA';
+
+export type WatchWarrantyType =
+  | 'CARD_ELETTRONICA'
+  | 'CARTACEA_UFFICIALE'
+  | 'ESTRATTO_ARCHIVIO'
+  | 'SCADUTA'
+  | 'RIVENDITORE_TERZO'
+  | 'NESSUNA';
+
+export type WatchCondition =
+  | 'NUOVO_MAI_INDOSSATO'
+  | 'OTTIMO_PARI_AL_NUOVO'
+  | 'BUONO_USATO'
+  | 'REVISIONATO';
 
 export interface AlternativeAsset {
   id: string;
@@ -207,6 +229,53 @@ export interface AlternativeAsset {
   hasDocuments: boolean;
   isInsured: boolean;
   notes?: string;
+
+  // Specific for Gold & Precious Metals:
+  goldGrams?: number; // Peso in grammi
+  goldCarats?: string; // 24K (999.9), 22K, 18K (750), ecc.
+  goldType?: 'LINGOTTO' | 'MONETA' | 'GIOIELLO' | 'ALTRO';
+  goldRefinery?: string; // Valcambi, Argor-Heraeus, Krugerrand, Sovereign, ecc.
+  goldSerial?: string; // Numero di serie/blister
+
+  // Specific for Luxury Watches:
+  watchBrand?: string; // Rolex, Patek Philippe, Audemars Piguet, Omega, ecc.
+  watchModel?: string; // Submariner Date, Daytona, Royal Oak, Nautilus, ecc.
+  watchReference?: string; // Ref. es. 126610LN
+  watchYear?: number | string; // Anno produzione / garanzia
+  watchSet?: WatchSetType; // Full Set, Solo Orologio, ecc.
+  watchWarrantyType?: WatchWarrantyType; // Card, Cartacea, ecc.
+  watchCondition?: WatchCondition; // Nuovo, Ottimo, ecc.
+  watchMaterial?: string; // Acciaio, Oro Giallo, Oro Rosa, Platino, Bicolore, ecc.
+  watchSerial?: string; // Seriale cassa (opzionale)
+
+  // Specific for Art & Paintings:
+  artArtist?: string;
+  artTitle?: string;
+  artYear?: number | string;
+  artTechnique?: string; // Olio su tela, scultura, litografia, ecc.
+  artDimensions?: string; // es. 100x80 cm
+  artCertificate?: string; // Archivio Fondazione, Galleria, Perizia
+
+  // Specific for Classic Cars & Supercars:
+  carBrandModel?: string;
+  carYear?: number | string;
+  carVinPlate?: string; // Targa o numero telaio
+  carMileage?: number; // km
+  carCertification?: string; // ASI Targa Oro, FIVA, ecc.
+  carCondition?: string;
+
+  // Specific for Fine Wine & Spirits:
+  wineProducer?: string; // Cantina / Produttore
+  wineVintage?: string; // Annata
+  wineBottleSize?: string; // 0.75L, Magnum 1.5L, Cassa OWC
+  wineQuantity?: number; // Numero bottiglie
+  wineStorageCondition?: string; // Cantina termocontrollata, ecc.
+
+  // Specific for Jewelry & Gems:
+  jewelryGemType?: string; // Diamante, Smeraldo, Rubino, ecc.
+  jewelryCarats?: number; // Carati
+  jewelryCertificate?: string; // GIA, HRD, IGI
+  jewelryMetal?: string; // Oro 18k, Platino
 }
 
 export interface CompanyParticipation {

@@ -412,11 +412,19 @@ export const INITIAL_ALTERNATIVES: AlternativeAsset[] = [
     purchaseDate: '2022-03-10',
     ownerId: 'mem-1',
     ownershipPercentage: 100,
-    description: 'Acciaio Oystersteel, lunetta Cerachrom nera, quadrante nero. Full set con scatola e garanzia originale.',
+    description: 'Acciaio Oystersteel, lunetta Cerachrom nera, quadrante nero.',
     location: 'Cassetta di sicurezza Intesa',
     hasDocuments: true,
     isInsured: true,
-    notes: 'Valutazione di mercato aggiornata a fine 2025.'
+    notes: 'Valutazione di mercato aggiornata.',
+    watchBrand: 'Rolex',
+    watchModel: 'Submariner Date',
+    watchReference: '126610LN',
+    watchYear: 2022,
+    watchSet: 'FULL_SET',
+    watchWarrantyType: 'CARD_ELETTRONICA',
+    watchCondition: 'OTTIMO_PARI_AL_NUOVO',
+    watchMaterial: 'Acciaio Oystersteel'
   },
   {
     id: 'alt-oro',
@@ -427,11 +435,16 @@ export const INITIAL_ALTERNATIVES: AlternativeAsset[] = [
     purchaseDate: '2020-05-18',
     ownerId: 'mem-all',
     ownershipPercentage: 100,
-    description: 'Lingotti certificati London Good Delivery 999.9/1000 con sigillo bancario.',
+    description: 'Lingotti certificati London Good Delivery con sigillo.',
     location: 'Caveau Prosegur',
     hasDocuments: true,
     isInsured: true,
-    notes: 'Copertura inflattiva e riserva strategica di liquidità.'
+    notes: 'Copertura inflattiva e riserva strategica di liquidità.',
+    goldGrams: 500,
+    goldCarats: '24K (999.9)',
+    goldType: 'LINGOTTO',
+    goldRefinery: 'Argor-Heraeus',
+    goldSerial: 'AH-99948201'
   }
 ];
 

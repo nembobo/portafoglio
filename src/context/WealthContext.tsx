@@ -184,6 +184,8 @@ interface WealthContextType {
   deleteRegularIncome: (id: string) => void;
   addLiability: (liability: Omit<Liability, 'id'> & { id?: string }) => string;
   addAlternative: (alt: Omit<AlternativeAsset, 'id'> & { id?: string }) => string;
+  updateAlternative: (id: string, updates: Partial<AlternativeAsset>) => void;
+  deleteAlternative: (id: string) => void;
   addSmartRule: (rule: Omit<SmartRule, 'id'> & { id?: string }) => string;
   toggleSmartRule: (ruleId: string) => void;
   deleteSmartRule: (ruleId: string) => void;
@@ -191,6 +193,11 @@ interface WealthContextType {
   updateTaxProfile: (updates: Partial<GlobalTaxProfile>) => void;
   markTaxPaid: (gainId: string) => void;
   resetToDemo: () => void;
+  resetToEmpty: () => void;
+  exportWorkspaceJSON: () => string;
+  importWorkspaceJSON: (jsonStr: string) => boolean;
+  isFirstVisit: boolean;
+  dismissFirstVisit: () => void;
 }
 
 const WealthContext = createContext<WealthContextType | undefined>(undefined);
@@ -754,6 +761,14 @@ export const WealthProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return id;
   };
 
+  const updateAlternative = (id: string, updates: Partial<AlternativeAsset>) => {
+    setAlternatives(prev => prev.map(a => (a.id === id ? { ...a, ...updates } : a)));
+  };
+
+  const deleteAlternative = (id: string) => {
+    setAlternatives(prev => prev.filter(a => a.id !== id));
+  };
+
   const addSmartRule = (rule: Omit<SmartRule, 'id'> & { id?: string }): string => {
     const id = rule.id || `rule-${Date.now()}`;
     setSmartRules(prev => [...prev, { ...rule, id }]);
@@ -977,11 +992,66 @@ export const WealthProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setAccounts(prev => prev.filter(a => a.id !== id));
   };
 
+  const [isFirstVisit, setIsFirstVisit] = useState<boolean>(() => {
+    return localStorage.getItem(`${LOCAL_STORAGE_KEY}_onboarding_dismissed`) !== 'true';
+  });
+
+  const dismissFirstVisit = () => {
+    localStorage.setItem(`${LOCAL_STORAGE_KEY}_onboarding_dismissed`, 'true');
+    setIsFirstVisit(false);
+  };
+
+  const resetToEmpty = () => {
+    localStorage.clear();
+    localStorage.setItem(`${LOCAL_STORAGE_KEY}_onboarding_dismissed`, 'true');
+    localStorage.setItem(`${LOCAL_STORAGE_KEY}_workspace_mode`, 'empty');
+
+    const initialMember: FamilyMember = {
+      id: 'mem-1',
+      name: 'Il Mio Profilo',
+      role: 'Capofamiglia',
+      avatarColor: '#4f46e5'
+    };
+
+    setFamilyMembers([initialMember]);
+    setCustomTaxRates(INITIAL_CUSTOM_TAX_RATES);
+    setSelectedOwnerId('mem-1');
+    setShowFamilyConsolidated(false);
+    setAssets([]);
+    setProperties([]);
+    setRentalContracts([]);
+    setLiabilities([]);
+    setAlternatives([]);
+    setCompanies([]);
+    setRegularIncomes([]);
+    setAccounts([
+      {
+        id: 'acc-1',
+        institution: 'Banca Principale',
+        name: 'Conto Corrente',
+        type: 'CONTO_CORRENTE',
+        balance: 0,
+        availableLiquidity: 0,
+        ownerId: 'mem-1',
+        currency: 'EUR',
+        taxRate: 0
+      }
+    ]);
+    setSmartRules([]);
+    setTaxLosses([]);
+    setRealizedGains([]);
+    setTaxProfile(INITIAL_GLOBAL_TAX_PROFILE);
+    setEvents([]);
+  };
+
   const resetToDemo = () => {
     localStorage.clear();
+    localStorage.setItem(`${LOCAL_STORAGE_KEY}_onboarding_dismissed`, 'true');
+    localStorage.setItem(`${LOCAL_STORAGE_KEY}_workspace_mode`, 'demo');
     setFamilyMembers(INITIAL_FAMILY_MEMBERS);
     setCustomTaxRates(INITIAL_CUSTOM_TAX_RATES);
     setSelectedOwnerId('mem-all');
+    setShowFamilyConsolidated(true);
     setAssets(INITIAL_FINANCIAL_ASSETS);
     setProperties(INITIAL_PROPERTIES);
     setRentalContracts(INITIAL_RENTAL_CONTRACTS);
@@ -992,6 +1062,8 @@ export const WealthProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setTaxLosses(INITIAL_TAX_LOSSES);
     setRealizedGains(INITIAL_REALIZED_GAINS);
     setTaxProfile(INITIAL_GLOBAL_TAX_PROFILE);
+    setAccounts(INITIAL_ACCOUNTS);
+    setRegularIncomes(INITIAL_REGULAR_INCOMES);
     setEvents(
       generateAutomatedEvents(
         INITIAL_FINANCIAL_ASSETS,
@@ -1000,6 +1072,56 @@ export const WealthProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         INITIAL_LIABILITIES
       )
     );
+  };
+
+  const exportWorkspaceJSON = (): string => {
+    const data = {
+      version: '2.0',
+      exportDate: new Date().toISOString(),
+      familyMembers,
+      customTaxRates,
+      assets,
+      properties,
+      rentalContracts,
+      liabilities,
+      alternatives,
+      companies,
+      accounts,
+      regularIncomes,
+      smartRules,
+      taxLosses,
+      realizedGains,
+      taxProfile,
+      showFamilyConsolidated
+    };
+    return JSON.stringify(data, null, 2);
+  };
+
+  const importWorkspaceJSON = (jsonStr: string): boolean => {
+    try {
+      const data = JSON.parse(jsonStr);
+      if (Array.isArray(data.familyMembers)) setFamilyMembers(data.familyMembers);
+      if (Array.isArray(data.customTaxRates)) setCustomTaxRates(data.customTaxRates);
+      if (Array.isArray(data.assets)) setAssets(data.assets);
+      if (Array.isArray(data.properties)) setProperties(data.properties);
+      if (Array.isArray(data.rentalContracts)) setRentalContracts(data.rentalContracts);
+      if (Array.isArray(data.liabilities)) setLiabilities(data.liabilities);
+      if (Array.isArray(data.alternatives)) setAlternatives(data.alternatives);
+      if (Array.isArray(data.companies)) setCompanies(data.companies);
+      if (Array.isArray(data.accounts)) setAccounts(data.accounts);
+      if (Array.isArray(data.regularIncomes)) setRegularIncomes(data.regularIncomes);
+      if (Array.isArray(data.smartRules)) setSmartRules(data.smartRules);
+      if (Array.isArray(data.taxLosses)) setTaxLosses(data.taxLosses);
+      if (Array.isArray(data.realizedGains)) setRealizedGains(data.realizedGains);
+      if (data.taxProfile) setTaxProfile(data.taxProfile);
+      if (typeof data.showFamilyConsolidated === 'boolean') setShowFamilyConsolidated(data.showFamilyConsolidated);
+      localStorage.setItem(`${LOCAL_STORAGE_KEY}_onboarding_dismissed`, 'true');
+      setIsFirstVisit(false);
+      return true;
+    } catch (e) {
+      console.error('Failed to import JSON', e);
+      return false;
+    }
   };
 
   return (
@@ -1106,13 +1228,20 @@ export const WealthProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         deleteRegularIncome,
         addLiability,
         addAlternative,
+        updateAlternative,
+        deleteAlternative,
         addSmartRule,
         toggleSmartRule,
         deleteSmartRule,
         processBankMovement,
         updateTaxProfile,
         markTaxPaid,
-        resetToDemo
+        resetToDemo,
+        resetToEmpty,
+        exportWorkspaceJSON,
+        importWorkspaceJSON,
+        isFirstVisit,
+        dismissFirstVisit
       }}
     >
       {children}

@@ -17,7 +17,9 @@ import {
   ShieldCheck,
   AlertTriangle,
   RotateCcw,
-  Briefcase
+  Briefcase,
+  Settings,
+  Database
 } from 'lucide-react';
 import { useWealth, NavigationTab } from '../../context/WealthContext';
 
@@ -29,8 +31,15 @@ interface NavItem {
   badgeColor?: string;
 }
 
-export const Sidebar: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
-  const { activeTab, setActiveTab, overdueEvents, resetToDemo } = useWealth();
+export const Sidebar: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  onOpenWorkspaceManager?: () => void;
+}> = ({ isOpen, onClose, onOpenWorkspaceManager }) => {
+  const { activeTab, setActiveTab, overdueEvents, familyMembers, selectedOwnerId } = useWealth();
+
+  const activeOwner = familyMembers.find(m => m.id === selectedOwnerId);
+  const profileName = selectedOwnerId === 'mem-all' ? 'Patrimonio Familiare' : (activeOwner?.name || 'Mio Profilo');
 
   const navItems: NavItem[] = [
     { id: 'dashboard', label: 'Dashboard & Net Worth', icon: LayoutDashboard },
@@ -117,25 +126,30 @@ export const Sidebar: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ is
           })}
         </div>
 
-        {/* Profile Card & Demo reset */}
+        {/* Profile Card & Workspace Manager */}
         <div className="p-4 border-t border-slate-100 bg-white space-y-2">
-          <div className="bg-slate-50 p-3 rounded-lg flex items-center gap-3 border border-slate-100">
-            <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs shrink-0">
-              R
+          <div className="bg-slate-50 p-3 rounded-xl flex items-center gap-3 border border-slate-100">
+            <div className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+              {profileName.charAt(0)}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-bold text-slate-700 truncate">Famiglia Rossi</p>
-              <p className="text-[10px] text-slate-500 truncate">Consolidato</p>
+              <p className="text-xs font-bold text-slate-800 truncate">{profileName}</p>
+              <p className="text-[10px] text-emerald-600 font-semibold truncate flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                Locale & Privato
+              </p>
             </div>
           </div>
 
           <button
-            onClick={resetToDemo}
-            className="w-full flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition-colors"
-            title="Ripristina dati demo Fineco, BTP, Immobili Bologna/Rimini"
+            onClick={() => {
+              if (onOpenWorkspaceManager) onOpenWorkspaceManager();
+              onClose();
+            }}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-indigo-700 bg-indigo-50/70 hover:bg-indigo-100 border border-indigo-100 transition-colors"
           >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Reset Demo Data</span>
+            <Database className="w-3.5 h-3.5 text-indigo-600" />
+            <span>Spazio Dati & Backup</span>
           </button>
         </div>
       </aside>
