@@ -1,0 +1,6 @@
+{
+  "name": "Patrimonio - Family Wealth & Cash Flow",
+  "description": "Piattaforma avanzata per la gestione completa del patrimonio personale e familiare, investimenti, immobili, cedole e affitti automatici, cash flow e pianificazione fiscale Lordo/Netto.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
